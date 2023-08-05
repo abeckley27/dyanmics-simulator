@@ -4,36 +4,24 @@ import random
 import math
 import sys
 
-# Check to see if two balls are colliding
-
-def check_intersect(b1, b2):
-    x1 = b1.position()[0]
-    y1 = b1.position()[1]
-    x2 = b2.position()[0]
-    y2 = b2.position()[1]
-    dist = math.sqrt((y2 - y1)**2 + (x2 - x1)**2 )
-    r1 = abs(b1.rad())
-    r2 = abs(b2.rad())
-    return dist <= r1 + r2
 
 # Change the necessary values if two balls are colliding
-# Note that collision calls check_intersect
+def collision(b1, b2):
+    initial_values = (b1.vx, b1.vy, b2.vx, b2.vy)
+    #if the masses are the same, the balls trade velocities
+    b1.vx = initial_values[2]
+    b1.vy = initial_values[3]
+    b2.vx = initial_values[0]
+    b2.vy = initial_values[1]
 
-def collision(b1, b2, iteration):
-    if check_intersect(b1, b2):
-        if b2.radius > b1.radius:
-            b1, b2 = b2, b1
-        new = Ball.Ball(0,0,0,0,0, b1.color)
-        new.x = (b1.area()*b1.x + b2.area()*b2.x) / (b1.area() + b2.area())
-        new.y = (b1.area()*b1.y + b2.area()*b2.y) / (b1.area() + b2.area())
-        new.vx = (b1.area()*b1.x + b2.area()*b2.x) / (b1.area() + b2.area())
-        new.vy = (b1.area()*b1.y + b2.area()*b2.y) / (b1.area() + b2.area())
-        new_area = b1.area() + b2.area()
-        new.radius = math.sqrt(new_area / math.pi)
-        print('Iteration %d collision between ball %d and %d to form ball %d' %(iteration, balls.index(b1), balls.index(b2), len(balls)))
-        balls.append(new)
-        print_balls()
-        
+def calculate_acceleration(ball_list):
+    for b in ball_list:
+        indices = list(range(len(ball_list)))
+        indices.remove(ball_list.index(b))
+        for j in indices:
+            F = b.mass * ball_list[j].mass / math.pow(b.distance(ball_list[j]), 2)
+            
+    
 def print_balls():
     for b in range(0, len(balls)):
         current = balls[b]
@@ -164,11 +152,9 @@ if __name__ == "__main__":
             root.check_and_reverse(maxx, maxy)
 
             #Check for collisions between balls
-            '''
             for b in balls:
-                if root != b:
-                    collision(root, b, frame)
-            '''
+                if (root != b) and root.check_intersect(b):
+                    collision(root, b)
             
             # Draw an oval on the canvas within the bounding box
             bound = root.bounding_box()
