@@ -20,7 +20,7 @@ def check_intersect(b1, b2):
 # Note that collision calls check_intersect
 
 def collision(b1, b2, iteration):
-    if check_intersect(b1, b2) and (b1 not in ignore) and (b2 not in ignore):
+    if check_intersect(b1, b2):
         if b2.radius > b1.radius:
             b1, b2 = b2, b1
         new = Ball.Ball(0,0,0,0,0, b1.color)
@@ -31,22 +31,19 @@ def collision(b1, b2, iteration):
         new_area = b1.area() + b2.area()
         new.radius = math.sqrt(new_area / math.pi)
         print('Iteration %d collision between ball %d and %d to form ball %d' %(iteration, balls.index(b1), balls.index(b2), len(balls)))
-        ignore.append(b1)
-        ignore.append(b2)
         balls.append(new)
         print_balls()
         
 def print_balls():
     for b in range(0, len(balls)):
         current = balls[b]
-        if current not in ignore:
-            xpos = current.position()[0]
-            ypos = current.position()[1]
-            rad = current.radius
-            dx = current.velocity()[0]
-            dy = current.velocity()[1]
-            color = current.color
-            print ('Ball: %d: position (%d, %d), radius %d, motion (%d, %d), color %s' %(b,xpos, ypos, rad, dx, dy, color))
+        xpos = current.position()[0]
+        ypos = current.position()[1]
+        rad = current.radius
+        dx = current.velocity()[0]
+        dy = current.velocity()[1]
+        color = current.color
+        print ('Ball: %d: position (%d, %d), radius %d, motion (%d, %d), color %s' %(b,xpos, ypos, rad, dx, dy, color))
     print ('')
 
 if __name__ == "__main__":
@@ -55,11 +52,12 @@ if __name__ == "__main__":
 
     source = input('Enter y to generate random ball positions: ')
     print ('==> ' + source.lower())
+    
     filename = input('Enter the name of the data file: ')
     print ('==> ' + filename)
+    
     f1 = open(filename, 'r')
     ball_init = []
-    ignore = []
 
     # Set up ball_init as a two dimensional list containing all of the
     # information about that balls in the simulation.
@@ -69,14 +67,32 @@ if __name__ == "__main__":
 
     balls = []
     #print ball_init     #For testing purposes
+    
+    '''
+    The data from the input file are now stored as integers in a 2D list, 
+    called ball_init.
+    
+    element     | meaning
+    0           | x position
+    1           | y position
+    2           | x velocity
+    3           | y velocity
+    4           | size (radius)
+    5           | color
+    '''
 
     if source == 'y':
         print ('Generating random data for simulation...')
         color_lst = ["black", "blue", "red", "green", "magenta", "orange", "pink", \
     "purple", "yellow"]
+        
+        #Convert the text from the file into integers
         for y in range(0, len(ball_init)):
             for z in range(0,len(ball_init[y]) - 1):
                 ball_init[y][z] = int(ball_init[y][z])
+        ball_init[0][-1] = int(ball_init[0][-1])
+        
+        #Setting the bounds of the canvas
         maxx = int(ball_init[0][2])
         maxy = int(ball_init[0][3])
         minr = int(ball_init[1][1])
@@ -115,7 +131,8 @@ if __name__ == "__main__":
 
     print ('Initial ball configuration:')
     print_balls()
-
+    
+    #Start main simulation loop
     while True:
 
         if pretty_colors.lower() == 'y':
@@ -128,38 +145,35 @@ if __name__ == "__main__":
         for root in balls:
             
             # Draw an oval on the canvas within the bounding box
-            
             bound = root.bounding_box()
 
-            root.check_and_reverse(maxx, maxy)  #Check collisions with walls
+            #Check collisions with walls
+            root.check_and_reverse(maxx, maxy)  
 
-
-            if pretty_colors.lower() == 'y' and (root not in ignore):
+            #Update the canvas if graphics are turned on
+            if (pretty_colors.lower() == 'y'):
                 chart_1.create_oval(bound, fill = root.get_color())
                 chart_1.update()      # Actually refresh the drawing on the canvas.
 
                 chart_1.after(wait_time)
-
+            
+            #Move the ball based on its velocity
             root.move()
 
-            if len(balls) - len(ignore) > 1:    #Check collisions with other balls
-                for b in balls:
-                    if root != b:
-                        collision(root, b, frame)
-            else:
-                remaining = []  #This is a list only to prevent errors from having multiple balls left, should they arise.
-                for b in balls:
-                    if b not in ignore:
-                        remaining.append(b)
-                'Ends at iteration %d with only ball %d remaining.' %(frame, balls.index(remaining[0]))
+            #Check for collisions between balls
+            '''
+            for b in balls:
+                if root != b:
+                    collision(root, b, frame)
+            '''
             
         frame = frame + 1
         if frame >= int(ball_init[0][1]):
             break
 
-    print ('Ends at maximum number of iterations, %d, with the following balls remaining.' %frame)
+    print ('Ends at maximum number of iterations, %d, with the following state:' %frame)
     print_balls()
 
     if pretty_colors.lower() == 'y':
-        #root.mainloop()
+        root.mainloop()
         pass

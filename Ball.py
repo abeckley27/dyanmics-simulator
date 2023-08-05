@@ -19,7 +19,6 @@ class Ball(object):
     def move(self):
         self.x = self.x + self.vx
         self.y = self.y + self.vy
-        
 
     def get_color(self):
         return self.color
