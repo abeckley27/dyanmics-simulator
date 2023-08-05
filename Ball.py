@@ -31,9 +31,16 @@ class Ball(object):
         return 0 < self.x + self.radius and self.x - self.radius < maxx and 0 < self.y + self.radius and self.y - self.radius < maxy
 
     def check_and_reverse(self, maxx, maxy):
-        if self.x <= 0 or self.x >= maxx:
+        if self.x <= 0: 
             self.vx = self.vx * -1
-        if self.y <= 0 or self.y >= maxy:
+            
+        if self.x >= maxx:
+            self.vx = self.vx * -1
+            
+        if self.y <= 0:
+            self.vy = self.vy * -1
+            
+        if self.y >= maxy:
             self.vy = self.vy * -1
 
     def velocity(self):

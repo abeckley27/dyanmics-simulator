@@ -132,33 +132,36 @@ if __name__ == "__main__":
     print ('Initial ball configuration:')
     print_balls()
     
+    #Initial Canvas setup
+    
+    #  Here is the time in milliseconds between consecutive instances
+    #  of drawing the root.  If this time is too small the root will
+    #  zip across the canvas in a blur.
+    wait_time = 5
+    
+    for b in balls:
+        # Draw an oval on the canvas within the bounding box
+        bound = b.bounding_box()
+    
+        #Update the canvas if graphics are turned on
+        if (pretty_colors.lower() == 'y'):
+            chart_1.create_oval(bound, fill = b.get_color())
+            chart_1.update()      # Actually refresh the drawing on the canvas.
+            chart_1.after(wait_time)
+    
+    
     #Start main simulation loop
     while True:
 
         if pretty_colors.lower() == 'y':
-            #  Here is the time in milliseconds between consecutive instances
-            #  of drawing the root.  If this time is too small the root will
-            #  zip across the canvas in a blur.
-            wait_time = 10
             chart_1.delete(tk.ALL)
         
         for root in balls:
-            
-            # Draw an oval on the canvas within the bounding box
-            bound = root.bounding_box()
-
-            #Check collisions with walls
-            root.check_and_reverse(maxx, maxy)  
-
-            #Update the canvas if graphics are turned on
-            if (pretty_colors.lower() == 'y'):
-                chart_1.create_oval(bound, fill = root.get_color())
-                chart_1.update()      # Actually refresh the drawing on the canvas.
-
-                chart_1.after(wait_time)
-            
             #Move the ball based on its velocity
             root.move()
+            
+            #Check collisions with walls
+            root.check_and_reverse(maxx, maxy)
 
             #Check for collisions between balls
             '''
@@ -167,13 +170,19 @@ if __name__ == "__main__":
                     collision(root, b, frame)
             '''
             
+            # Draw an oval on the canvas within the bounding box
+            bound = root.bounding_box()
+
+            #Update the canvas if graphics are turned on
+            if (pretty_colors.lower() == 'y'):
+                chart_1.create_oval(bound, fill = root.get_color())
+                chart_1.update()      # Actually refresh the drawing on the canvas.
+
+                chart_1.after(wait_time)
+            
         frame = frame + 1
         if frame >= int(ball_init[0][1]):
             break
 
     print ('Ends at maximum number of iterations, %d, with the following state:' %frame)
     print_balls()
-
-    if pretty_colors.lower() == 'y':
-        root.mainloop()
-        pass
